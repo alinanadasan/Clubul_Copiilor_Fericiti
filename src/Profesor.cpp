@@ -12,9 +12,9 @@
 Profesor::Profesor(std::string nume, std::string email,
                    std::string materie, std::string nivel,
                    double tarifOra)
-    // Profesor este Instructor, deci apelam constructorul din Instructor
+    // CORECTAT: folosește materie ca specializare, nu "materie_scolara"
     : Instructor(std::move(nume), std::move(email),
-                 "materie_scolara", tarifOra),
+                 materie, tarifOra),  // ← AICI E CORECTAT
       materie_(std::move(materie)),
       nivel_(std::move(nivel)) {
 

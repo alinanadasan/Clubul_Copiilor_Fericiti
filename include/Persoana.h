@@ -5,7 +5,7 @@
 #ifndef CLUBUL_COPIILOR_FERICITI_PERSOANA_H
 #define CLUBUL_COPIILOR_FERICITI_PERSOANA_H
 
-#include <string>
+#include <string>    // ← ADAUGAT
 #include <iosfwd>
 
 // Clasa de baza pentru toate tipurile de persoane din aplicatie.
@@ -56,5 +56,4 @@ public:
 std::ostream& operator<<(std::ostream& out, const Persoana& p);
 std::istream& operator>>(std::istream& in, Persoana& p);
 
-#endif // OOP_PERSOANA_H
-
+#endif // CLUBUL_COPIILOR_FERICITI_PERSOANA_H
