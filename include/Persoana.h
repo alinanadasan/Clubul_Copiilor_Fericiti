@@ -3,7 +3,7 @@
 //
 
 #ifndef CLUBUL_COPIILOR_FERICITI_PERSOANA_H
-#define CLUBUL_COPIILOR_FERICITI__PERSOANA_H
+#define CLUBUL_COPIILOR_FERICITI_PERSOANA_H
 
 #include <string>
 #include <iosfwd>

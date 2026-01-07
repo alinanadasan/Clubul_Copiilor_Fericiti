@@ -121,7 +121,7 @@ int main() {
                 }
 
                 // downcast
-                Copil* copil = dynamic_cast<Copil*>(gasita);
+                const Copil* copil = dynamic_cast<const Copil*>(gasita);
                 if (!copil) {
                     std::cout << "Persoana cu id=" << id << " nu este copil.\n";
                     continue;
