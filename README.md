@@ -1,5 +1,5 @@
 # Centru de cursuri pentru copii - Clubul Copiilor
-
+Constanta-Alina Pirlea(Nadasan) - grupa 211
 ## Descriere
 Acest proiect implementeaza o aplicatie de tip consola pentru gestionarea unui centru de cursuri destinat copiilor (de tip "Clubul Copiilor").
 
