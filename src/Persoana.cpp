@@ -3,11 +3,9 @@
 //
 #include "Persoana.h"
 
-#include <stdexcept>   // pentru std::invalid_argument
-#include <utility>     // pentru std::move
-#include <ostream>     // pentru std::ostream
-#include <istream>     // pentru std::istream
-
+#include <stdexcept>   // std::invalid_argument
+#include <utility>     // std::move
+#include <ostream>
 // Variabila statica
 int Persoana::urmatorId_ = 1;
 
@@ -16,27 +14,26 @@ int Persoana::genereazaIdNou() {
     return urmatorId_++;
 }
 
-Persoana::Persoana(std::string nume, std::string email)
-    : id_(genereazaIdNou()), nume_(std::move(nume)), email_(std::move(email)) {
-    // validari
+Persoana::Persoana(std::string nume, std::string prenume)
+    : id_(genereazaIdNou()), nume_(std::move(nume)), prenume_(std::move(prenume)) {
     if (nume_.empty()) {
         throw std::invalid_argument("Numele nu poate fi gol.");
     }
-    if (email_.empty()) {
-        throw std::invalid_argument("Emailul nu poate fi gol.");
+    if (prenume_.empty()) {
+        throw std::invalid_argument("Prenumele nu poate fi gol.");
     }
 }
 
-Persoana::Persoana(int id, std::string nume, std::string email)
-    : id_(id), nume_(std::move(nume)), email_(std::move(email)) {
+Persoana::Persoana(int id, std::string nume, std::string prenume)
+    : id_(id), nume_(std::move(nume)), prenume_(std::move(prenume)) {
     if (id_ <= 0) {
         throw std::invalid_argument("ID invalid (trebuie > 0).");
     }
     if (nume_.empty()) {
         throw std::invalid_argument("Numele nu poate fi gol.");
     }
-    if (email_.empty()) {
-        throw std::invalid_argument("Emailul nu poate fi gol.");
+    if (prenume_.empty()) {
+        throw std::invalid_argument("Prenumele nu poate fi gol.");
     }
 
     // daca citim persoane cu id mare, nu vrem ca urmatorId_ sa genereze duplicate
@@ -52,25 +49,24 @@ void Persoana::setNume(std::string nume) {
     nume_ = std::move(nume);
 }
 
-void Persoana::setEmail(std::string email) {
-    if (email.empty()) {
-        throw std::invalid_argument("Emailul nu poate fi gol.");
+void Persoana::setPrenume(std::string prenume) {
+    if (prenume.empty()) {
+        throw std::invalid_argument("Prenumele nu poate fi gol.");
     }
-    email_ = std::move(email);
+    prenume_ = std::move(prenume);
 }
 
 void Persoana::afiseaza(std::ostream& out) const {
-    // atribute comune
     out << "ID=" << id_
         << ", Nume=" << nume_
-        << ", Email=" << email_;
+        << ", Prenume=" << prenume_;
 }
 
 void Persoana::citeste(std::istream& in) {
-    // citire: nume si email fara spatii
-    in >> nume_ >> email_;
+    // citire: nume si prenume fara spatii
+    in >> nume_ >> prenume_;
 
-    if (nume_.empty() || email_.empty()) {
+    if (nume_.empty() || prenume_.empty()) {
         throw std::invalid_argument("Citire Persoana invalida.");
     }
 }

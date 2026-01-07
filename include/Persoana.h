@@ -5,44 +5,41 @@
 #ifndef CLUBUL_COPIILOR_FERICITI_PERSOANA_H
 #define CLUBUL_COPIILOR_FERICITI_PERSOANA_H
 
-#include <string>    // ← ADAUGAT
+#include <string>
 #include <iosfwd>
 
 // Clasa de baza pentru toate tipurile de persoane din aplicatie.
 class Persoana {
 private:
-    int id_;                 // id unic pentru fiecare persoana
-    std::string nume_;       // numele persoanei
-    std::string email_;      // email de contact
+    int id_;                    // id unic pentru fiecare persoana
+    std::string nume_;          // numele persoanei
+    std::string prenume_;       // prenumele persoanei
 
-    static int urmatorId_;   // contor static pentru generarea id-urilor
+    static int urmatorId_;      // contor static pentru generarea id-urilor
 
 protected:
     // Constructor apelat doar din clasele derivate
-    Persoana(std::string nume, std::string email);
+    Persoana(std::string nume, std::string prenume);
 
     // Constructor cu id explicit
-    Persoana(int id, std::string nume, std::string email);
+    Persoana(int id, std::string nume, std::string prenume);
 
 public:
-    // Constructor de copiere si operator=
     Persoana(const Persoana&) = default;
     Persoana& operator=(const Persoana&) = default;
 
-    // Destructor virtual
     virtual ~Persoana() = default;
 
-    // Functie statica pentru generarea unui id nou
     static int genereazaIdNou();
 
     // Getters
     int id() const noexcept { return id_; }
     const std::string& nume() const noexcept { return nume_; }
-    const std::string& email() const noexcept { return email_; }
+    const std::string& prenume() const noexcept { return prenume_; }
 
     // Setters
     void setNume(std::string nume);
-    void setEmail(std::string email);
+    void setPrenume(std::string prenume);
 
     // Metoda virtuala -> clasa abstracta
     virtual std::string tip() const = 0;

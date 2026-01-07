@@ -4,15 +4,25 @@
 #include "Parinte.h"
 
 #include <stdexcept>   // std::invalid_argument
-#include <ostream>
-#include <istream>
 #include <utility>     // std::move
-
-Parinte::Parinte(std::string nume, std::string email, std::string telefon)
-    : Persoana(std::move(nume), std::move(email)), telefon_(std::move(telefon)) {
+#include <ostream>
+Parinte::Parinte(std::string nume, std::string prenume, std::string email, std::string telefon)
+    : Persoana(std::move(nume), std::move(prenume)),
+      email_(std::move(email)),
+      telefon_(std::move(telefon)) {
+    if (email_.empty()) {
+        throw std::invalid_argument("Emailul parintelui nu poate fi gol.");
+    }
     if (telefon_.empty()) {
         throw std::invalid_argument("Telefonul parintelui nu poate fi gol.");
     }
+}
+
+void Parinte::setEmail(std::string email) {
+    if (email.empty()) {
+        throw std::invalid_argument("Emailul parintelui nu poate fi gol.");
+    }
+    email_ = std::move(email);
 }
 
 void Parinte::setTelefon(std::string telefon) {
@@ -38,11 +48,12 @@ void Parinte::adaugaCopil(int copilId) {
 }
 
 void Parinte::afiseaza(std::ostream& out) const {
-    // partea comuna (id, nume, email)
+    // partea comuna (id, nume, prenume)
     Persoana::afiseaza(out);
 
     // specific parintelui
-    out << ", Telefon=" << telefon_;
+    out << ", Email=" << email_
+        << ", Telefon=" << telefon_;
 
     // afisam si copiii asociati
     out << ", CopiiIDs=[";
@@ -56,13 +67,13 @@ void Parinte::afiseaza(std::ostream& out) const {
 }
 
 void Parinte::citeste(std::istream& in) {
-    // partea comuna
+    // partea comuna (nume + prenume)
     Persoana::citeste(in);
 
-    // telefonul
-    in >> telefon_;
+    // email + telefon
+    in >> email_ >> telefon_;
 
-    if (telefon_.empty()) {
+    if (email_.empty() || telefon_.empty()) {
         throw std::invalid_argument("Citire Parinte invalida.");
     }
 }

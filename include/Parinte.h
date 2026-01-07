@@ -14,26 +14,27 @@
 // Un parinte poate avea unul sau mai multi copii inscrisi.
 class Parinte final : public Persoana {
 private:
+    std::string email_;
     std::string telefon_;
     std::vector<int> copiiIds_; // id-urile copiilor asociati parintelui
 
 public:
     // Constructor: apelam constructorul din Persoana
-    Parinte(std::string nume, std::string email, std::string telefon);
+    Parinte(std::string nume, std::string prenume, std::string email, std::string telefon);
 
-    // Copiere
     Parinte(const Parinte&) = default;
     Parinte& operator=(const Parinte&) = default;
 
-    // Destructor
     ~Parinte() override = default;
 
-    // Tipul persoanei
     std::string tip() const override { return "Parinte"; }
 
-    // Afisare / citire extinse fata de Persoana
     void afiseaza(std::ostream& out) const override;
     void citeste(std::istream& in) override;
+
+    // Getter / setter pentru email
+    const std::string& email() const noexcept { return email_; }
+    void setEmail(std::string email);
 
     // Getter / setter pentru telefon
     const std::string& telefon() const noexcept { return telefon_; }
@@ -42,8 +43,7 @@ public:
     // Asociere copil-parinte
     void adaugaCopil(int copilId);
 
-    // Acces la lista de copii pt citire
     const std::vector<int>& copiiIds() const noexcept { return copiiIds_; }
 };
 
-#endif //CLUBUL_COPIILOR_FERICITI_PARINTE_H
+#endif // CLUBUL_COPIILOR_FERICITI_PARINTE_H

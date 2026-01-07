@@ -16,7 +16,7 @@ private:
     std::string nivel_;   // ex: "primar", "gimnaziu"
 
 public:
-    Profesor(std::string nume, std::string email,
+    Profesor(std::string nume, std::string prenume, std::string email,
              std::string materie, std::string nivel,
              double tarifOra);
 
@@ -37,4 +37,4 @@ public:
     void setNivel(std::string nivel);
 };
 
-#endif //CLUBUL_COPIILOR_FERICITI_PROFESOR_H
+#endif // CLUBUL_COPIILOR_FERICITI_PROFESOR_H

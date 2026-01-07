@@ -4,17 +4,18 @@
 
 #include "Profesor.h"
 
-#include <stdexcept>
-#include <utility>
+#include <stdexcept>   // std::invalid_argument
+#include <utility>     // std::move
 #include <ostream>
 #include <istream>
 
-Profesor::Profesor(std::string nume, std::string email,
+Profesor::Profesor(std::string nume, std::string prenume, std::string email,
                    std::string materie, std::string nivel,
                    double tarifOra)
-    // CORECTAT: folosește materie ca specializare, nu "materie_scolara"
-    : Instructor(std::move(nume), std::move(email),
-                 materie, tarifOra),  // ← AICI E CORECTAT
+    : Instructor(std::move(nume), std::move(prenume),
+                 std::move(email),
+                 "profesor",  // specializare implicita pentru Profesori
+                 tarifOra),
       materie_(std::move(materie)),
       nivel_(std::move(nivel)) {
 
@@ -41,21 +42,32 @@ void Profesor::setNivel(std::string nivel) {
 }
 
 void Profesor::afiseaza(std::ostream& out) const {
-    // afisam ce afiseaza Instructor (care afiseaza si Persoana)
     Instructor::afiseaza(out);
-
-    // apoi completam cu ce e specific profesorului
     out << ", Materie=" << materie_
         << ", Nivel=" << nivel_;
 }
 
 void Profesor::citeste(std::istream& in) {
-    // citim partea comuna de Instructor (nume, email, specializare, tarifOra)
-    Instructor::citeste(in);
+    // partea comuna (nume + prenume)
+    Persoana::citeste(in);
 
-    in >> materie_ >> nivel_;
+    std::string email;
+    std::string materie;
+    std::string nivel;
+    double tarifOra;
 
-    if (materie_.empty() || nivel_.empty()) {
+    in >> email >> materie >> nivel >> tarifOra;
+
+    if (email.empty() || materie.empty() || nivel.empty() || tarifOra <= 0) {
         throw std::invalid_argument("Citire Profesor invalida.");
     }
+
+    // setez partea de Instructor (email, specializare implicita, tarif)
+    setEmail(std::move(email));
+    setSpecializare("profesor");
+    setTarifOra(tarifOra);
+
+    // setez partea specifica Profesor
+    materie_ = std::move(materie);
+    nivel_ = std::move(nivel);
 }

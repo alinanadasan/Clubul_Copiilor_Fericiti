@@ -1,0 +1,6 @@
+# Date pentru teste automate
+COPIL Ana ana@mail.com 10
+COPIL Mihai mihai@mail.com 12
+PARINTE Ion ion@mail.com 0712345678
+INSTRUCTOR Daria daria@mail.com dans 80
+PROFESOR Radu radu@mail.com matematica gimnaziu 100
