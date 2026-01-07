@@ -1,7 +1,7 @@
 6
-COPIL Popescu Ana 10
-COPIL Ionescu Mihai 7
-PARINTE Popescu Maria maria@mail.com 0712345678
-INSTRUCTOR Radu Andrei andrei@mail.com robotica 120
-PROFESOR Matei Ioana ioana@mail.com matematica gimnaziu 150
-PARINTE Ionescu Elena elena@mail.com 0799999999
+copil Popescu Andrei 7
+copil Ionescu Maria 10
+parinte Popescu Elena elena.popescu@email.com 0712345678
+instructor Marin Vasile vasile.marin@email.com programare 120
+profesor Ionescu Dan dan.ionescu@email.com matematica gimnaziu 150
+copil Georgescu Vlad 18

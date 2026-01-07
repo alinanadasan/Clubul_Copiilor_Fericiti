@@ -73,36 +73,53 @@ std::string Meniu::citesteString(const std::string& mesaj) {
     return s;
 }
 
-
 void Meniu::ruleaza() {
     while (true) {
         std::cout << "\n=== Clubul Copiilor ===\n"
                   << "1) Testare automata\n"
                   << "2) Testare manuala\n"
-                  << "3) Iesire\n";
+                  << "3) Iesire\n"
+                  << "Alege: ";
 
         int opt = 0;
-        try {
-            opt = citesteInt("Alege: ");
-        } catch (const std::exception& e) {
-            std::cout << "Iesire: " << e.what() << "\n";
-            return;
-        }
 
-        if (opt == 1) {
-            std::cout << "[TEST AUTOMAT] Se citesc date din fisierul tastatura.txt\n";
-            try {
-                ruleazaTestAutomatDinFisier("tastatura.txt");
-            } catch (const std::exception& e) {
-                std::cout << "Eroare test automat: " << e.what() << "\n";
+        // Citire "bruta" (fara citesteInt), ca sa putem detecta input piped de tip tastatura.txt
+        if (std::cin >> opt) {
+            if (opt == 1) {
+                std::cout << "[TEST AUTOMAT] Se citesc date din fisierul tastatura.txt\n";
+                try {
+                    ruleazaTestAutomatDinFisier("tastatura.txt");
+                } catch (const std::exception& e) {
+                    std::cout << "Eroare test automat: " << e.what() << "\n";
+                }
+            } else if (opt == 2) {
+                meniuManual();
+            } else if (opt == 3) {
+                std::cout << "La revedere!\n";
+                return;
+            } else {
+                // Daca nu e 1/2/3, in CI primul token este N (ex: 6)
+                if (opt > 0) {
+                    std::cout << "[CI/PIPE] Am detectat input de tip 'tastatura.txt' pe stdin. Rulez test automat.\n";
+                    try {
+                        ruleazaTestAutomatDinStream(std::cin, opt);
+                    } catch (const std::exception& e) {
+                        std::cout << "Eroare test automat din stdin: " << e.what() << "\n";
+                    }
+                    return;
+                }
+                std::cout << "Optiune invalida.\n";
             }
-        } else if (opt == 2) {
-            meniuManual();
-        } else if (opt == 3) {
-            std::cout << "La revedere!\n";
-            return;
         } else {
-            std::cout << "Optiune invalida.\n";
+            if (std::cin.eof()) {
+                std::cout << "Iesire: EOF la citire (nu exista input).\n";
+                return;
+            }
+
+            // token non-int (ex: "COPIL") -> nu buclam infinit
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Valoare invalida. Incercati din nou.\n";
         }
     }
 }
@@ -393,40 +410,71 @@ void Meniu::ruleazaTestAutomatDinFisier(const std::string& fisier) {
 
     int n = 0;
     fin >> n;
-    if (n <= 0) {
+    if (!fin || n <= 0) {
         throw std::runtime_error("Fisier invalid: N trebuie > 0.");
     }
 
+    // refolosim aceeasi logica pentru orice std::istream
+    ruleazaTestAutomatDinStream(fin, n);
+}
+
+void Meniu::ruleazaTestAutomatDinStream(std::istream& in, int n) {
+    if (n <= 0) {
+        throw std::runtime_error("Input invalid: N trebuie > 0.");
+    }
+
+    // 1) Citire persoane
     for (int i = 0; i < n; ++i) {
         std::string tip;
-        fin >> tip;
+        in >> tip;
+        if (!in) {
+            throw std::runtime_error("Input invalid: date insuficiente.");
+        }
+
         tip = toLower(tip);
 
         if (tip == "copil") {
             std::string nume, prenume;
             int varsta = 0;
-            fin >> nume >> prenume >> varsta;
-            registru_.adauga(PersoanaFactory::creeazaCopil(nume, prenume, varsta));
+            in >> nume >> prenume >> varsta;
+            registru_.adauga(
+                PersoanaFactory::creeazaCopil(nume, prenume, varsta)
+            );
+
         } else if (tip == "parinte") {
             std::string nume, prenume, email, telefon;
-            fin >> nume >> prenume >> email >> telefon;
-            registru_.adauga(PersoanaFactory::creeazaParinte(nume, prenume, email, telefon));
+            in >> nume >> prenume >> email >> telefon;
+            registru_.adauga(
+                PersoanaFactory::creeazaParinte(nume, prenume, email, telefon)
+            );
+
         } else if (tip == "instructor") {
-            std::string nume, prenume, email, spec;
+            std::string nume, prenume, email, specializare;
             double tarif = 0;
-            fin >> nume >> prenume >> email >> spec >> tarif;
-            registru_.adauga(PersoanaFactory::creeazaInstructor(nume, prenume, email, spec, tarif));
+            in >> nume >> prenume >> email >> specializare >> tarif;
+            registru_.adauga(
+                PersoanaFactory::creeazaInstructor(
+                    nume, prenume, email, specializare, tarif
+                )
+            );
+
         } else if (tip == "profesor") {
-            std::string nume, prenume, email, materie, nivel;
+            std::string nume, prenume, email;
+            std::string materieCitita, nivelCitit;
             double tarif = 0;
-            fin >> nume >> prenume >> email >> materie >> nivel >> tarif;
-            registru_.adauga(PersoanaFactory::creeazaProfesor(nume, prenume, email, materie, nivel, tarif));
+            in >> nume >> prenume >> email >> materieCitita >> nivelCitit >> tarif;
+            registru_.adauga(
+                PersoanaFactory::creeazaProfesor(
+                    nume, prenume, email, materieCitita, nivelCitit, tarif
+                )
+            );
+
         } else {
-            throw std::runtime_error("Fisier invalid: tip necunoscut.");
+            throw std::runtime_error("Input invalid: tip necunoscut.");
         }
     }
 
-    // 2 instantiari ale template-ului Administrare<T>
+    // 2) Instantiere template Administrare<T>
     Administrare<Copil> adminCopii;
     Administrare<Parinte> adminParinti;
 
@@ -438,27 +486,30 @@ void Meniu::ruleazaTestAutomatDinFisier(const std::string& fisier) {
         }
     }
 
-    // Folosim functiile raportate ca "unusedFunction" in Administrare.h
-    if (!adminCopii.esteGoala()) {                  // esteGoala()
-        const auto& vec = adminCopii.toate();       // toate()
+    // 3) Folosim toate functiile raportate ca unused (cppcheck)
+    if (!adminCopii.esteGoala()) {
+        const auto& vec = adminCopii.toate();
         (void)vec.size();
 
-        auto& primul = adminCopii.primulDupa([](const Copil& c) {  // primulDupa()
-            return c.varsta() >= 3;
-        });
+        auto& primul = adminCopii.primulDupa(
+            [](const Copil& c) { return c.varsta() >= 3; }
+        );
         (void)primul.varsta();
 
-        const auto sters = adminCopii.stergeDaca([](const Copil& c) { // stergeDaca()
-            return c.varsta() == 18;
-        });
+        const auto sters = adminCopii.stergeDaca(
+            [](const Copil& c) { return c.varsta() == 18; }
+        );
         if (sters > 0) {
-            std::cout << "[TEST] Am sters " << sters << " copil(i) cu varsta 18.\n";
+            std::cout << "[TEST] Am sters " << sters
+                      << " copil(i) cu varsta 18.\n";
         }
     }
 
-    SortareCopiiDupaVarsta strat;
-    adminCopii.sorteazaCuStrategie(strat);
+    // 4) Strategy Pattern
+    SortareCopiiDupaVarsta strategie;
+    adminCopii.sorteazaCuStrategie(strategie);
 
+    // 5) Afisari finale
     std::cout << "\n--- [TEST AUTOMAT] Persoane incarcate ---\n";
     registru_.afiseaza(std::cout);
 

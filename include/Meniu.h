@@ -4,6 +4,7 @@
 #include <string>
 
 #include "RegistruPersoane.h"
+#include <istream>
 
 class Meniu {
 private:
@@ -14,6 +15,8 @@ private:
     static std::string citesteString(const std::string& mesaj);
 
     void ruleazaTestAutomatDinFisier(const std::string& fisier);
+    // nou: pentru CI (cand inputul vine prin pipe)
+    void ruleazaTestAutomatDinStream(std::istream& in, int nDejaCitit);
 
     void meniuManual();
     void meniuGestioneazaPersoane();
