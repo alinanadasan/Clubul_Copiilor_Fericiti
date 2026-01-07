@@ -2,8 +2,8 @@
 // Created by Alina on 02/01/2026.
 //
 
-#ifndef OOP_PERSOANA_H
-#define OOP_PERSOANA_H
+#ifndef CLUBUL_COPIILOR_FERICITI_PERSOANA_H
+#define CLUBUL_COPIILOR_FERICITI__PERSOANA_H
 
 #include <string>
 #include <iosfwd>
