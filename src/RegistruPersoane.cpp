@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <istream>
 #include <ostream>
-
 void RegistruPersoane::adauga(std::unique_ptr<Persoana> p) {
     if (!p) {
         throw std::invalid_argument("RegistruPersoane: pointer null.");

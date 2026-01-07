@@ -52,22 +52,21 @@ void Profesor::citeste(std::istream& in) {
     Persoana::citeste(in);
 
     std::string email;
-    std::string materie;
-    std::string nivel;
+    std::string materieCitita;
+    std::string nivelCitit;
     double tarifOra;
 
-    in >> email >> materie >> nivel >> tarifOra;
+    in >> email >> materieCitita >> nivelCitit >> tarifOra;
 
-    if (email.empty() || materie.empty() || nivel.empty() || tarifOra <= 0) {
+    if (email.empty() || materieCitita.empty() || nivelCitit.empty() || tarifOra <= 0) {
         throw std::invalid_argument("Citire Profesor invalida.");
     }
 
-    // setez partea de Instructor (email, specializare implicita, tarif)
     setEmail(std::move(email));
     setSpecializare("profesor");
     setTarifOra(tarifOra);
 
-    // setez partea specifica Profesor
-    materie_ = std::move(materie);
-    nivel_ = std::move(nivel);
+    materie_ = std::move(materieCitita);
+    nivel_ = std::move(nivelCitit);
 }
+

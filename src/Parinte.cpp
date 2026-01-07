@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include <istream>
 #include <ostream>
 
 Parinte::Parinte(std::string nume, std::string prenume, std::string email, std::string telefon)

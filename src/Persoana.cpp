@@ -3,9 +3,11 @@
 //
 #include "Persoana.h"
 
-#include <stdexcept>   // std::invalid_argument
-#include <utility>     // std::move
+#include <stdexcept>
+#include <utility>
+#include <istream>
 #include <ostream>
+
 // Variabila statica
 int Persoana::urmatorId_ = 1;
 

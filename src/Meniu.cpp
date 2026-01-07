@@ -319,12 +319,13 @@ void Meniu::asociazaCopilLaParinte() {
     auto* par = dynamic_cast<Parinte*>(&pParinte);
     if (!par) throw std::runtime_error("ID parinte nu corespunde unui Parinte.");
 
-    auto* copil = dynamic_cast<Copil*>(&pCopil);
+    const auto* copil = dynamic_cast<const Copil*>(&pCopil);
     if (!copil) throw std::runtime_error("ID copil nu corespunde unui Copil.");
 
-    par->adaugaCopil(copil->id()); // folosim adaugaCopil
-    std::cout << "Asociere facuta. Parinte are acum " << par->copiiIds().size()
-              << " copil(i) asociat(i).\n"; // folosim copiiIds()
+    par->adaugaCopil(copil->id());
+
+    std::cout << "Asociere facuta. Parinte are acum "
+              << par->copiiIds().size() << " copil(i) asociat(i).\n";
 
     std::cout << *par << "\n";
 }
