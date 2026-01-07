@@ -3,9 +3,10 @@
 //
 #include "Parinte.h"
 
-#include <stdexcept>   // std::invalid_argument
-#include <utility>     // std::move
+#include <stdexcept>
+#include <utility>
 #include <ostream>
+
 Parinte::Parinte(std::string nume, std::string prenume, std::string email, std::string telefon)
     : Persoana(std::move(nume), std::move(prenume)),
       email_(std::move(email)),

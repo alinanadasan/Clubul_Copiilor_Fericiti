@@ -24,7 +24,13 @@ private:
     void stergeDupaId();
     void cautaDupaNume() const;
     void sorteazaPersoane();
-    void operatiiSpecificeDowncast(); // exemplu downcast
+
+    // Operatii specifice tipului (downcast + folosim getter/setter ca sa nu pice cppcheck)
+    void operatiiSpecificeDowncast();
+    void schimbaNumePrenume();
+    void seteazaTelefonParinte();
+    void asociazaCopilLaParinte();
+    void modificaMaterieNivelProfesor();
 
 public:
     Meniu() = default;

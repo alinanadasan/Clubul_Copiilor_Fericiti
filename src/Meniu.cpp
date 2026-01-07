@@ -1,19 +1,18 @@
 #include "Meniu.h"
 
-#include <iostream>
-#include <fstream>
-#include <limits>
 #include <algorithm>
-#include <stdexcept>
 #include <cctype>
-
-#include "PersoanaFactory.h"
-#include "Copil.h"
-#include "Parinte.h"
-#include "Instructor.h"
-#include "Profesor.h"
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
 
 #include "Administrare.h"
+#include "Copil.h"
+#include "Instructor.h"
+#include "Parinte.h"
+#include "PersoanaFactory.h"
+#include "Profesor.h"
 #include "SortareCopiiDupaVarsta.h"
 
 namespace {
@@ -102,7 +101,7 @@ void Meniu::meniuGestioneazaPersoane() {
                   << "4) Sterge dupa ID\n"
                   << "5) Cauta dupa nume\n"
                   << "6) Sorteaza\n"
-                  << "7) Operatii specifice (downcast)\n"
+                  << "7) Operatii specifice (downcast / editari)\n"
                   << "0) Inapoi\n";
 
         const int opt = citesteInt("Alege: ");
@@ -117,7 +116,7 @@ void Meniu::meniuGestioneazaPersoane() {
             else if (opt == 0) return;
             else std::cout << "Optiune invalida.\n";
         } catch (const std::exception& e) {
-            // catch upcast: prindem tot ca std::exception
+            // upcasting in catch: prindem tot ca std::exception
             std::cout << "Eroare: " << e.what() << "\n";
         }
     }
@@ -162,6 +161,8 @@ void Meniu::adaugaPersoanaManual() {
 }
 
 void Meniu::afiseazaToate() const {
+    std::cout << "Total persoane: " << registru_.marime() << "\n"; // folosim marime()
+
     if (registru_.esteGol()) {
         std::cout << "Nu exista persoane.\n";
         return;
@@ -226,27 +227,126 @@ void Meniu::sorteazaPersoane() {
 }
 
 void Meniu::operatiiSpecificeDowncast() {
-    std::cout << "\n1) Creste varsta unui copil (ID)\n"
-              << "2) Mareste tariful unui instructor/profesor (ID)\n";
-    const int opt = citesteInt("Alege: ");
-    const int id = citesteInt("ID: ");
+    std::cout << "\n=== Operatii specifice (downcast / editari) ===\n"
+              << "1) Creste varsta unui copil (ID)\n"
+              << "2) Mareste tariful unui instructor/profesor (ID)\n"
+              << "3) Schimba nume/prenume (ID)\n"
+              << "4) Seteaza telefon parinte (ID)\n"
+              << "5) Asociaza copil la parinte (ID parinte + ID copil)\n"
+              << "6) Modifica materie/nivel profesor (ID)\n"
+              << "0) Inapoi\n";
 
+    const int opt = citesteInt("Alege: ");
+    if (opt == 0) return;
+
+    try {
+        if (opt == 1) {
+            const int id = citesteInt("ID copil: ");
+            Persoana& p = registru_.gasesteDupaId(id);
+
+            auto* c = dynamic_cast<Copil*>(&p);
+            if (!c) throw std::runtime_error("Persoana nu este Copil.");
+
+            c->setVarsta(c->varsta() + 1);
+            std::cout << "Varsta crescuta. " << *c << "\n";
+        } else if (opt == 2) {
+            const int id = citesteInt("ID instructor/profesor: ");
+            Persoana& p = registru_.gasesteDupaId(id);
+
+            auto* inst = dynamic_cast<Instructor*>(&p); // merge si pentru Profesor
+            if (!inst) throw std::runtime_error("Persoana nu este Instructor/Profesor.");
+
+            // folosim getter-ul specializare() (cppcheck)
+            std::cout << "Specializare curenta: " << inst->specializare() << "\n";
+
+            const double suma = citesteDouble("Suma marire: ");
+            (*inst) += suma; // operator membru
+
+            std::cout << "Tarif modificat. " << *inst << "\n";
+        } else if (opt == 3) {
+            schimbaNumePrenume();
+        } else if (opt == 4) {
+            seteazaTelefonParinte();
+        } else if (opt == 5) {
+            asociazaCopilLaParinte();
+        } else if (opt == 6) {
+            modificaMaterieNivelProfesor();
+        } else {
+            throw std::invalid_argument("Optiune invalida.");
+        }
+    } catch (const std::exception& e) {
+        std::cout << "Eroare: " << e.what() << "\n";
+    }
+}
+
+void Meniu::schimbaNumePrenume() {
+    const int id = citesteInt("ID: ");
     Persoana& p = registru_.gasesteDupaId(id);
 
-    if (opt == 1) {
-        auto* c = dynamic_cast<Copil*>(&p);
-        if (!c) throw std::runtime_error("Persoana nu este Copil.");
-        c->setVarsta(c->varsta() + 1);
-        std::cout << "Varsta crescuta. " << *c << "\n";
-    } else if (opt == 2) {
-        auto* inst = dynamic_cast<Instructor*>(&p); // merge si pentru Profesor (upcast)
-        if (!inst) throw std::runtime_error("Persoana nu este Instructor/Profesor.");
-        const double suma = citesteDouble("Suma marire: ");
-        (*inst) += suma; // operator membru
-        std::cout << "Tarif modificat. " << *inst << "\n";
-    } else {
-        throw std::invalid_argument("Optiune invalida.");
-    }
+    const std::string numeNou = citesteString("Nume nou: ");
+    const std::string prenumeNou = citesteString("Prenume nou: ");
+
+    // folosim setNume / setPrenume (cppcheck)
+    p.setNume(numeNou);
+    p.setPrenume(prenumeNou);
+
+    std::cout << "Actualizat: " << p << "\n";
+}
+
+void Meniu::seteazaTelefonParinte() {
+    const int id = citesteInt("ID parinte: ");
+    Persoana& p = registru_.gasesteDupaId(id);
+
+    auto* par = dynamic_cast<Parinte*>(&p);
+    if (!par) throw std::runtime_error("Persoana nu este Parinte.");
+
+    std::cout << "Email parinte: " << par->email() << "\n"; // folosim getter email()
+    std::cout << "Telefon curent: " << par->telefon() << "\n"; // folosim getter telefon()
+
+    const std::string telNou = citesteString("Telefon nou: ");
+    par->setTelefon(telNou); // folosim setTelefon
+
+    std::cout << "Actualizat: " << *par << "\n";
+}
+
+void Meniu::asociazaCopilLaParinte() {
+    const int idParinte = citesteInt("ID parinte: ");
+    const int idCopil = citesteInt("ID copil: ");
+
+    Persoana& pParinte = registru_.gasesteDupaId(idParinte);
+    Persoana& pCopil = registru_.gasesteDupaId(idCopil);
+
+    auto* par = dynamic_cast<Parinte*>(&pParinte);
+    if (!par) throw std::runtime_error("ID parinte nu corespunde unui Parinte.");
+
+    auto* copil = dynamic_cast<Copil*>(&pCopil);
+    if (!copil) throw std::runtime_error("ID copil nu corespunde unui Copil.");
+
+    par->adaugaCopil(copil->id()); // folosim adaugaCopil
+    std::cout << "Asociere facuta. Parinte are acum " << par->copiiIds().size()
+              << " copil(i) asociat(i).\n"; // folosim copiiIds()
+
+    std::cout << *par << "\n";
+}
+
+void Meniu::modificaMaterieNivelProfesor() {
+    const int id = citesteInt("ID profesor: ");
+    Persoana& p = registru_.gasesteDupaId(id);
+
+    auto* prof = dynamic_cast<Profesor*>(&p);
+    if (!prof) throw std::runtime_error("Persoana nu este Profesor.");
+
+    // folosim getter-ele materie() si nivel()
+    std::cout << "Materia curenta: " << prof->materie() << "\n";
+    std::cout << "Nivel curent: " << prof->nivel() << "\n";
+
+    const std::string materieNoua = citesteString("Materie noua: ");
+    const std::string nivelNou = citesteString("Nivel nou: ");
+
+    prof->setMaterie(materieNoua); // folosim setMaterie
+    prof->setNivel(nivelNou);      // folosim setNivel
+
+    std::cout << "Actualizat: " << *prof << "\n";
 }
 
 void Meniu::ruleazaTestAutomatDinFisier(const std::string& fisier) {
@@ -255,11 +355,9 @@ void Meniu::ruleazaTestAutomatDinFisier(const std::string& fisier) {
         throw std::runtime_error("Nu pot deschide fisierul tastatura.txt.");
     }
 
-    // Format fisier (simplu):
+    // Format:
     // N
     // TIP nume prenume [rest]
-    // TIP: COPIL / PARINTE / INSTRUCTOR / PROFESOR
-    //
     // COPIL nume prenume varsta
     // PARINTE nume prenume email telefon
     // INSTRUCTOR nume prenume email specializare tarif
@@ -300,8 +398,7 @@ void Meniu::ruleazaTestAutomatDinFisier(const std::string& fisier) {
         }
     }
 
-    // Demonstrez explicit cele 2 instantiari ale template-ului Administrare<T>
-    // (fara sa incurc registrul principal polimorf).
+    // 2 instantiari ale template-ului Administrare<T>
     Administrare<Copil> adminCopii;
     Administrare<Parinte> adminParinti;
 
@@ -310,6 +407,24 @@ void Meniu::ruleazaTestAutomatDinFisier(const std::string& fisier) {
             adminCopii.adauga(*c);
         } else if (const auto* par = dynamic_cast<const Parinte*>(p)) {
             adminParinti.adauga(*par);
+        }
+    }
+
+    // Folosim functiile raportate ca "unusedFunction" in Administrare.h
+    if (!adminCopii.esteGoala()) {                  // esteGoala()
+        const auto& vec = adminCopii.toate();       // toate()
+        (void)vec.size();
+
+        auto& primul = adminCopii.primulDupa([](const Copil& c) {  // primulDupa()
+            return c.varsta() >= 3;
+        });
+        (void)primul.varsta();
+
+        const auto sters = adminCopii.stergeDaca([](const Copil& c) { // stergeDaca()
+            return c.varsta() == 18;
+        });
+        if (sters > 0) {
+            std::cout << "[TEST] Am sters " << sters << " copil(i) cu varsta 18.\n";
         }
     }
 

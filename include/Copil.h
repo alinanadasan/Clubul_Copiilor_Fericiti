@@ -6,7 +6,8 @@
 #define CLUBUL_COPIILOR_FERICITI_COPIL_H
 
 #include "Persoana.h"
-
+#include <istream>
+#include <ostream>
 // Copil = Persoana care participa la cursuri.
 // E derivata din Persoana, deci mosteneste id, nume, prenume.
 class Copil final : public Persoana {
