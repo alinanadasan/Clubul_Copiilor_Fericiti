@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <ostream>
 #include <utility>
+#include "StrategieSortare.h"
 
 // Administrare<T> = colectie de elemente T.
 // Ex: Administrare<Copil>, Administrare<Parinte>, Administrare<Plata> etc.
@@ -63,6 +64,14 @@ public:
             out << e << "\n";
         }
     }
+
+    void sorteazaCuStrategie(const StrategieSortare<T>& strategie) {
+        std::sort(elemente_.begin(), elemente_.end(),
+                  [&](const T& a, const T& b) {
+                      return strategie.compara(a, b);
+                  });
+    }
+
 };
 
 #endif //CLUBUL_COPIILOR_FERICITI_ADMINISTRARE_H

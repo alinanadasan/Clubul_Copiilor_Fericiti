@@ -1,5 +1,7 @@
 1
 Ana ana@mail.com 10
+1
+Mihai mihai@mail.com 12
 2
 Ion ion@mail.com 0712345678
 3
@@ -7,5 +9,26 @@ Daria daria@mail.com dans 80
 4
 Radu radu@mail.com matematica gimnaziu 100
 5
+6
+1 AnaNoua ana2@mail.com
+7
+3 1
+8
+3
+9
+10
+11
+12
+11
+13
+3 0700000000
+14
+4 yoga 120
+15
+16
 17
+18
+5
+19
+5 fizica liceu
 0

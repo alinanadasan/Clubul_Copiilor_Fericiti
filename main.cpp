@@ -10,55 +10,37 @@
 #include "Profesor.h"
 #include "Administrare.h"
 
-void testInfo(int op, const std::string& mesaj) {
-    std::cout << "\n[TEST] Optiune " << op << " -> " << mesaj << "\n";
-}
-
 int citesteInt() {
     int x;
-    while (!(std::cin >> x)) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "[INPUT] invalid, reincearca: ";
-    }
+    std::cin >> x;
     return x;
 }
 
-const Persoana* gasesteConst(const std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
-    for (const auto& p : persoane)
-        if (p->id() == id) return p.get();
-    return nullptr;
-}
-
-Persoana* gasesteMut(std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
-    for (auto& p : persoane)
-        if (p->id() == id) return p.get();
-    return nullptr;
-}
-
 void afiseazaMeniu() {
-    std::cout << "\n===== MENIU =====\n";
-    std::cout << "1 Adauga copil\n";
-    std::cout << "2 Adauga parinte\n";
-    std::cout << "3 Adauga instructor\n";
-    std::cout << "4 Adauga profesor\n";
-    std::cout << "5 Afiseaza toate persoanele\n";
-    std::cout << "6 Modifica nume/email persoana\n";
-    std::cout << "7 Asociaza copil la parinte\n";
-    std::cout << "8 Afiseaza parinte + copii\n";
-    std::cout << "9 Copii sortati dupa varsta\n";
-    std::cout << "10 Instructori sortati dupa tarif\n";
-    std::cout << "11 Afiseaza profesori\n";
-    std::cout << "12 Sterge copii sub o varsta\n";
-    std::cout << "13 Modifica telefon parinte\n";
-    std::cout << "14 Modifica instructor\n";
-    std::cout << "15 Primul copil (Administrare)\n";
-    std::cout << "16 Afiseaza toti copiii\n";
-    std::cout << "17 Verifica profesori (esteGoala + marime)\n";
-    std::cout << "18 Afiseaza materie/nivel profesor\n";
-    std::cout << "19 Modifica materie/nivel profesor\n";
-    std::cout << "0 Iesire\n";
-    std::cout << "Optiune: ";
+    std::cout <<
+    "\n================= MENIU PRINCIPAL =================\n"
+    "1.  Adauga copil\n"
+    "2.  Adauga parinte\n"
+    "3.  Adauga instructor\n"
+    "4.  Adauga profesor\n"
+    "5.  Afiseaza toate persoanele\n"
+    "6.  Modifica nume si email pentru o persoana\n"
+    "7.  Asociaza copil unui parinte\n"
+    "8.  Afiseaza un parinte si copiii sai\n"
+    "9.  Sorteaza copiii dupa varsta\n"
+    "10. Sorteaza instructorii dupa tarif\n"
+    "11. Afiseaza toti profesorii\n"
+    "12. Sterge copiii sub o anumita varsta\n"
+    "13. Modifica telefonul unui parinte\n"
+    "14. Modifica specializarea si tariful unui instructor\n"
+    "15. Afiseaza primul copil\n"
+    "16. Afiseaza toti copiii\n"
+    "17. Verifica lista profesori (goala + marime)\n"
+    "18. Afiseaza materia si nivelul unui profesor\n"
+    "19. Modifica materia si nivelul unui profesor\n"
+    "0.  Iesire\n"
+    "===================================================\n"
+    "Optiune: ";
 }
 
 int main() {
@@ -73,85 +55,160 @@ int main() {
         afiseazaMeniu();
         int op = citesteInt();
 
-        try {
-            if (op == 0) {
-                testInfo(0, "Iesire program");
-                std::cout << "[RESULT] La revedere!\n";
-                break;
-            }
+        if (op == 0) {
+            std::cout << "Iesire din aplicatie.\n";
+            break;
+        }
 
-            if (op == 1) {
-                testInfo(1, "Adauga copil");
-                std::string n, e;
-                int v;
-                std::cin >> n >> e >> v;
-                std::cout << "[INPUT] nume=" << n << " email=" << e << " varsta=" << v << "\n";
-                auto c = std::make_unique<Copil>(n, e, v);
-                administrareCopii.adauga(*c);
-                persoane.push_back(std::move(c));
-                std::cout << "[RESULT] Copil adaugat. Total copii="
-                          << administrareCopii.marime() << "\n";
-            }
-            else if (op == 2) {
-                testInfo(2, "Adauga parinte");
-                std::string n, e, t;
-                std::cin >> n >> e >> t;
-                std::cout << "[INPUT] nume=" << n << " email=" << e << " telefon=" << t << "\n";
-                auto p = std::make_unique<Parinte>(n, e, t);
-                administrareParinti.adauga(*p);
-                persoane.push_back(std::move(p));
-                std::cout << "[RESULT] Parinte adaugat. Total parinti="
-                          << administrareParinti.marime() << "\n";
-            }
-            else if (op == 3) {
-                testInfo(3, "Adauga instructor");
-                std::string n, e, s;
-                double tarif;
-                std::cin >> n >> e >> s >> tarif;
-                std::cout << "[INPUT] nume=" << n << " email=" << e
-                          << " specializare=" << s << " tarif=" << tarif << "\n";
-                auto i = std::make_unique<Instructor>(n, e, s, tarif);
-                *i += 5;
-                administrareInstructori.adauga(*i);
-                persoane.push_back(std::move(i));
-                std::cout << "[RESULT] Instructor adaugat. Total instructori="
-                          << administrareInstructori.marime() << "\n";
-            }
-            else if (op == 4) {
-                testInfo(4, "Adauga profesor");
-                std::string n, e, m, niv;
-                double tarif;
-                std::cin >> n >> e >> m >> niv >> tarif;
-                std::cout << "[INPUT] nume=" << n << " email=" << e
-                          << " materie=" << m << " nivel=" << niv
-                          << " tarif=" << tarif << "\n";
-                auto pr = std::make_unique<Profesor>(n, e, m, niv, tarif);
-                administrareProfesori.adauga(*pr);
-                persoane.push_back(std::move(pr));
-                std::cout << "[RESULT] Profesor adaugat. Total profesori="
-                          << administrareProfesori.marime() << "\n";
-            }
-            else if (op == 5) {
-                testInfo(5, "Afisare persoane + email");
-                for (const auto& p : persoane) {
-                    std::cout << "[RESULT] " << *p
-                              << " | email=" << p->email() << "\n";
+        if (op == 1) {
+            std::string n, e;
+            int v;
+            std::cin >> n >> e >> v;
+            auto c = std::make_unique<Copil>(n, e, v);
+            administrareCopii.adauga(*c);
+            persoane.push_back(std::move(c));
+        }
+        else if (op == 2) {
+            std::string n, e, t;
+            std::cin >> n >> e >> t;
+            auto p = std::make_unique<Parinte>(n, e, t);
+            administrareParinti.adauga(*p);
+            persoane.push_back(std::move(p));
+        }
+        else if (op == 3) {
+            std::string n, e, s;
+            double tarif;
+            std::cin >> n >> e >> s >> tarif;
+            auto i = std::make_unique<Instructor>(n, e, s, tarif);
+            administrareInstructori.adauga(*i);
+            persoane.push_back(std::move(i));
+        }
+        else if (op == 4) {
+            std::string n, e, m, niv;
+            double tarif;
+            std::cin >> n >> e >> m >> niv >> tarif;
+            auto pr = std::make_unique<Profesor>(n, e, m, niv, tarif);
+            administrareProfesori.adauga(*pr);
+            persoane.push_back(std::move(pr));
+        }
+        else if (op == 5) {
+            for (const auto& p : persoane)
+                std::cout << *p << "\n";
+        }
+        else if (op == 6) {
+            int id;
+            std::string n, e;
+            std::cin >> id >> n >> e;
+            for (auto& p : persoane)
+                if (p->id() == id) {
+                    p->setNume(n);
+                    p->setEmail(e);
                 }
-            }
-            else if (op == 17) {
-                testInfo(17, "esteGoala + marime (Profesori)");
-                std::cout << "[RESULT] esteGoala="
-                          << administrareProfesori.esteGoala()
-                          << " marime="
-                          << administrareProfesori.marime() << "\n";
-            }
-            else {
-                testInfo(op, "Optiune implementata dar neapelata in demo");
-                std::cout << "[RESULT] OK\n";
+        }
+        else if (op == 7) {
+            int pid, cid;
+            std::cin >> pid >> cid;
+            for (auto& p : persoane) {
+                auto* parinte = dynamic_cast<Parinte*>(p.get());
+                if (parinte && parinte->id() == pid)
+                    parinte->adaugaCopil(cid);
             }
         }
-        catch (const std::exception& ex) {
-            std::cout << "[EXCEPTION] " << ex.what() << "\n";
+        else if (op == 8) {
+            int id;
+            std::cin >> id;
+            for (const auto& p : persoane) {
+                auto* parinte = dynamic_cast<Parinte*>(p.get());
+                if (parinte && parinte->id() == id) {
+                    std::cout << *parinte << "\n";
+                    for (int cid : parinte->copiiIds()) {
+                        for (const auto& x : persoane)
+                            if (x->id() == cid)
+                                std::cout << "  " << *x << "\n";
+                    }
+                }
+            }
+        }
+        else if (op == 9) {
+            administrareCopii.sorteazaDupa(
+                [](const Copil& a, const Copil& b) {
+                    return a.varsta() < b.varsta();
+                }
+            );
+        }
+        else if (op == 10) {
+            administrareInstructori.sorteazaDupa(
+                [](const Instructor& a, const Instructor& b) {
+                    return a < b;
+                }
+            );
+        }
+        else if (op == 11) {
+            administrareProfesori.afiseaza(std::cout);
+        }
+        else if (op == 12) {
+            int v;
+            std::cin >> v;
+            administrareCopii.stergeDaca(
+                [v](const Copil& c) { return c.varsta() < v; }
+            );
+        }
+        else if (op == 13) {
+            int id;
+            std::string tel;
+            std::cin >> id >> tel;
+            for (auto& p : persoane) {
+                auto* parinte = dynamic_cast<Parinte*>(p.get());
+                if (parinte && parinte->id() == id)
+                    parinte->setTelefon(tel);
+            }
+        }
+        else if (op == 14) {
+            int id;
+            std::string s;
+            double t;
+            std::cin >> id >> s >> t;
+            for (auto& p : persoane) {
+                auto* i = dynamic_cast<Instructor*>(p.get());
+                if (i && i->id() == id) {
+                    i->setSpecializare(s);
+                    i->setTarifOra(t);
+                }
+            }
+        }
+        else if (op == 15) {
+            std::cout << administrareCopii.primulDupa(
+                [](const Copil&) { return true; }
+            ) << "\n";
+        }
+        else if (op == 16) {
+            for (const auto& c : administrareCopii.toate())
+                std::cout << c << "\n";
+        }
+        else if (op == 17) {
+            std::cout << administrareProfesori.esteGoala()
+                      << " " << administrareProfesori.marime() << "\n";
+        }
+        else if (op == 18) {
+            int id;
+            std::cin >> id;
+            for (const auto& p : persoane) {
+                auto* pr = dynamic_cast<Profesor*>(p.get());
+                if (pr && pr->id() == id)
+                    std::cout << pr->materie() << " " << pr->nivel() << "\n";
+            }
+        }
+        else if (op == 19) {
+            int id;
+            std::string m, n;
+            std::cin >> id >> m >> n;
+            for (auto& p : persoane) {
+                auto* pr = dynamic_cast<Profesor*>(p.get());
+                if (pr && pr->id() == id) {
+                    pr->setMaterie(m);
+                    pr->setNivel(n);
+                }
+            }
         }
     }
 
