@@ -1,34 +1,147 @@
 #include <iostream>
-#include <array>
+#include <vector>
 #include <memory>
+#include <limits>
+
 #include "Copil.h"
 
-    int main() {
+int citesteInt() {
+    int x;
+    while (!(std::cin >> x)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Input invalid. Mai incearca: ";
+    }
+    return x;
+}
+
+int main() {
+    std::vector<std::unique_ptr<Persoana>> persoane;
+
+    while (true) {
+        std::cout << "\n===== MENIU =====\n";
+        std::cout << "1) Adauga copil\n";
+        std::cout << "2) Afiseaza toate persoanele\n";
+        std::cout << "3) Modifica nume/email (dupa id)\n";
+        std::cout << "4) Afiseaza varsta copil (dupa id)\n";
+        std::cout << "0) Iesire\n";
+        std::cout << "Optiune: ";
+
+        int op = citesteInt();
+
         try {
-            // cream un copil normal
-            Copil c1("Ana", "ana@email.com", 10);
+            if (op == 0) {
+                std::cout << "La revedere!\n";
+                break;
+            }
 
-            // afisare directa
-            std::cout << c1 << '\n';
+            if (op == 1) {
+                std::string nume, email;
+                int varsta;
 
-            // polimorfism: upcast Copil -> Persoana
-            std::unique_ptr<Persoana> p = std::make_unique<Copil>(
-                "Mihai", "mihai@email.com", 12
-            );
+                std::cout << "Nume (fara spatii): ";
+                std::cin >> nume;
+                std::cout << "Email: ";
+                std::cin >> email;
+                std::cout << "Varsta: ";
+                varsta = citesteInt();
 
-            // afisare prin pointer la baza
-            std::cout << *p << '\n';
+                auto c = std::make_unique<Copil>(nume, email, varsta);
 
-            // test de exceptie (varsta invalida)
-            Copil c2("Ion", "ion@email.com", 25);
-            std::cout << c2 << '\n';
+                std::cout << "Adaugat copil cu id=" << c->id() << "\n";
+
+                persoane.push_back(std::move(c));
+            }
+            else if (op == 2) {
+                if (persoane.empty()) {
+                    std::cout << "Nu exista persoane.\n";
+                } else {
+                    for (const auto& p : persoane) {
+                        // foloseste tip(), afiseaza(), operator<<
+                        std::cout << *p << "\n";
+
+                        std::cout << "  (debug) nume=" << p->nume()
+                                  << ", email=" << p->email() << "\n";
+                    }
+                }
+            }
+            else if (op == 3) {
+                if (persoane.empty()) {
+                    std::cout << "Nu exista persoane.\n";
+                    continue;
+                }
+
+                std::cout << "ID persoana: ";
+                int id = citesteInt();
+
+                Persoana* gasita = nullptr;
+                for (auto& p : persoane) {
+                    if (p->id() == id) {
+                        gasita = p.get();
+                        break;
+                    }
+                }
+
+                if (!gasita) {
+                    std::cout << "Nu exista persoana cu id=" << id << "\n";
+                    continue;
+                }
+
+                std::string numeNou, emailNou;
+                std::cout << "Nume nou (fara spatii): ";
+                std::cin >> numeNou;
+                std::cout << "Email nou: ";
+                std::cin >> emailNou;
+
+                gasita->setNume(numeNou);
+                gasita->setEmail(emailNou);
+
+                std::cout << "Actualizat: " << *gasita << "\n";
+            }
+            else if (op == 4) {
+                if (persoane.empty()) {
+                    std::cout << "Nu exista persoane.\n";
+                    continue;
+                }
+
+                std::cout << "ID copil: ";
+                int id = citesteInt();
+
+                Persoana* gasita = nullptr;
+                for (auto& p : persoane) {
+                    if (p->id() == id) {
+                        gasita = p.get();
+                        break;
+                    }
+                }
+
+                if (!gasita) {
+                    std::cout << "Nu exista persoana cu id=" << id << "\n";
+                    continue;
+                }
+
+                // downcast
+                Copil* copil = dynamic_cast<Copil*>(gasita);
+                if (!copil) {
+                    std::cout << "Persoana cu id=" << id << " nu este copil.\n";
+                    continue;
+                }
+
+                std::cout << "Varsta copilului " << copil->nume()
+                          << " este " << copil->varsta() << "\n";
+            }
+            else {
+                std::cout << "Optiune invalida.\n";
+            }
         }
         catch (const std::exception& e) {
-            std::cout << "Eroare: " << e.what() << '\n';
+            std::cout << "Eroare: " << e.what() << "\n";
         }
-
-        return 0;
     }
+
+    return 0;
+}
+
 /////////////////////////////////////////////////////////////////////////
 /// Observație: dacă aveți nevoie să citiți date de intrare de la tastatură,
 /// dați exemple de date de intrare folosind fișierul tastatura.txt
