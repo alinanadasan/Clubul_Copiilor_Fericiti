@@ -1,32 +1,31 @@
 1
-Ana ana@mail.com
-10
+Ana ana@mail.com 10
 1
-Mihai mihai@mail.com
-12
+Mihai mihai@mail.com 12
 2
-Ion ion@mail.com
-0712345678
+Ion ion@mail.com 0712345678
 3
-Daria daria@mail.com
-dans
-80
-3
-Alex alex@mail.com
-robotica
-120
+Daria daria@mail.com dans 80
 4
-6
-3
-1
-6
-3
-2
+Radu radu@mail.com matematica gimnaziu 100
+5
 7
-3
+3 1
+7
+3 2
 8
+3
+13
+3 0700000000
+14
+4 dans_modern 150
+15
+16
+17
 9
 10
 11
-4
+12
+11
+5
 0

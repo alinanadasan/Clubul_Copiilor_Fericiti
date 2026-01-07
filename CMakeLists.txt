@@ -59,6 +59,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/Administrare.h
         include/Instructor.h
         src/Instructor.cpp
+        include/Profesor.h
+        src/Profesor.cpp
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )
