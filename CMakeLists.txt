@@ -57,6 +57,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/Parinte.h
         src/Parinte.cpp
         include/Administrare.h
+        include/Instructor.h
+        src/Instructor.cpp
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )
