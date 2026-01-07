@@ -56,6 +56,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Copil.cpp
         include/Parinte.h
         src/Parinte.cpp
+        include/Administrare.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

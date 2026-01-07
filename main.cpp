@@ -5,6 +5,7 @@
 
 #include "Copil.h"
 #include "Parinte.h"
+#include "Administrare.h"
 
 int citesteInt() {
     int x;
@@ -16,14 +17,18 @@ int citesteInt() {
     return x;
 }
 
-const Persoana* gasestePersoanaConst(const std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
+// cautare doar pentru citire
+const Persoana* gasestePersoanaConst(
+        const std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
     for (const auto& p : persoane) {
         if (p->id() == id) return p.get();
     }
     return nullptr;
 }
 
-Persoana* gasestePersoanaMut(std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
+// cautare pentru modificare
+Persoana* gasestePersoanaMut(
+        std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
     for (auto& p : persoane) {
         if (p->id() == id) return p.get();
     }
@@ -36,15 +41,20 @@ void afiseazaMeniu() {
     std::cout << "2) Adauga parinte\n";
     std::cout << "3) Afiseaza toate persoanele\n";
     std::cout << "4) Modifica nume/email (dupa id)\n";
-    std::cout << "5) Modifica varsta copil / telefon parinte (dupa id)\n";
-    std::cout << "6) Asociaza copil la parinte (parinteId, copilId)\n";
-    std::cout << "7) Afiseaza copiii unui parinte (dupa id)\n";
+    std::cout << "5) Modifica varsta copil / telefon parinte\n";
+    std::cout << "6) Asociaza copil la parinte\n";
+    std::cout << "7) Afiseaza copiii unui parinte\n";
+    std::cout << "8) Afiseaza copiii sortati dupa varsta\n";
     std::cout << "0) Iesire\n";
     std::cout << "Optiune: ";
 }
 
 int main() {
     std::vector<std::unique_ptr<Persoana>> persoane;
+
+    // instantieri template (cerinta explicita)
+    Administrare<Copil> administrareCopii;
+    Administrare<Parinte> administrareParinti;
 
     while (true) {
         afiseazaMeniu();
@@ -60,32 +70,38 @@ int main() {
                 std::string nume, email;
                 int varsta;
 
-                std::cout << "Nume copil (fara spatii): ";
+                std::cout << "Nume copil: ";
                 std::cin >> nume;
                 std::cout << "Email copil: ";
                 std::cin >> email;
                 std::cout << "Varsta copil: ";
                 varsta = citesteInt();
 
-                auto c = std::make_unique<Copil>(nume, email, varsta);
-                std::cout << "Adaugat copil cu id=" << c->id() << "\n";
+                auto copilPtr = std::make_unique<Copil>(nume, email, varsta);
 
-                persoane.push_back(std::move(c));
+                // folosesc template-ul
+                administrareCopii.adauga(*copilPtr);
+
+                std::cout << "Copil adaugat cu id=" << copilPtr->id() << "\n";
+                persoane.push_back(std::move(copilPtr));
             }
             else if (op == 2) {
                 std::string nume, email, telefon;
 
-                std::cout << "Nume parinte (fara spatii): ";
+                std::cout << "Nume parinte: ";
                 std::cin >> nume;
                 std::cout << "Email parinte: ";
                 std::cin >> email;
                 std::cout << "Telefon parinte: ";
                 std::cin >> telefon;
 
-                auto p = std::make_unique<Parinte>(nume, email, telefon);
-                std::cout << "Adaugat parinte cu id=" << p->id() << "\n";
+                auto parintePtr = std::make_unique<Parinte>(nume, email, telefon);
 
-                persoane.push_back(std::move(p));
+                // folosesc template-ul
+                administrareParinti.adauga(*parintePtr);
+
+                std::cout << "Parinte adaugat cu id=" << parintePtr->id() << "\n";
+                persoane.push_back(std::move(parintePtr));
             }
             else if (op == 3) {
                 if (persoane.empty()) {
@@ -93,30 +109,21 @@ int main() {
                 } else {
                     for (const auto& p : persoane) {
                         std::cout << *p << "\n";
-
-                        std::cout << "  (info) id=" << p->id()
-                                  << ", nume=" << p->nume()
-                                  << ", email=" << p->email() << "\n";
                     }
                 }
             }
             else if (op == 4) {
-                if (persoane.empty()) {
-                    std::cout << "Nu exista persoane.\n";
-                    continue;
-                }
-
                 std::cout << "ID persoana: ";
                 int id = citesteInt();
 
                 Persoana* gasita = gasestePersoanaMut(persoane, id);
                 if (!gasita) {
-                    std::cout << "Nu exista persoana cu id=" << id << "\n";
+                    std::cout << "Persoana inexistenta.\n";
                     continue;
                 }
 
                 std::string numeNou, emailNou;
-                std::cout << "Nume nou (fara spatii): ";
+                std::cout << "Nume nou: ";
                 std::cin >> numeNou;
                 std::cout << "Email nou: ";
                 std::cin >> emailNou;
@@ -127,123 +134,68 @@ int main() {
                 std::cout << "Actualizat: " << *gasita << "\n";
             }
             else if (op == 5) {
-                if (persoane.empty()) {
-                    std::cout << "Nu exista persoane.\n";
-                    continue;
-                }
-
                 std::cout << "ID persoana: ";
                 int id = citesteInt();
 
                 Persoana* gasita = gasestePersoanaMut(persoane, id);
                 if (!gasita) {
-                    std::cout << "Nu exista persoana cu id=" << id << "\n";
+                    std::cout << "Persoana inexistenta.\n";
                     continue;
                 }
 
                 if (auto* copil = dynamic_cast<Copil*>(gasita)) {
-                    std::cout << "Varsta noua pentru copil: ";
+                    std::cout << "Varsta noua: ";
                     int v = citesteInt();
                     copil->setVarsta(v);
-                    std::cout << "Actualizat: " << *copil << "\n";
+                    std::cout << *copil << "\n";
                 } else if (auto* parinte = dynamic_cast<Parinte*>(gasita)) {
                     std::string tel;
-                    std::cout << "Telefon nou pentru parinte: ";
+                    std::cout << "Telefon nou: ";
                     std::cin >> tel;
                     parinte->setTelefon(tel);
-                    std::cout << "Actualizat: " << *parinte << "\n";
-                } else {
-                    std::cout << "Tip de persoana necunoscut (nu ar trebui sa se intample).\n";
+                    std::cout << *parinte << "\n";
                 }
             }
             else if (op == 6) {
-                if (persoane.empty()) {
-                    std::cout << "Nu exista persoane.\n";
-                    continue;
-                }
-
                 std::cout << "ID parinte: ";
-                int parinteId = citesteInt();
+                int idParinte = citesteInt();
                 std::cout << "ID copil: ";
-                int copilId = citesteInt();
+                int idCopil = citesteInt();
 
-                // parinte mutabil (il modificam: adaugam copilId)
-                Persoana* pParinte = gasestePersoanaMut(persoane, parinteId);
-                if (!pParinte) {
-                    std::cout << "Nu exista persoana cu id=" << parinteId << "\n";
+                auto* pParinte = dynamic_cast<Parinte*>(
+                        gasestePersoanaMut(persoane, idParinte));
+                const auto* pCopil = dynamic_cast<const Copil*>(
+                        gasestePersoanaConst(persoane, idCopil));
+
+                if (!pParinte || !pCopil) {
+                    std::cout << "Asociere invalida.\n";
                     continue;
                 }
 
-                auto* parinte = dynamic_cast<Parinte*>(pParinte);
-                if (!parinte) {
-                    std::cout << "Persoana cu id=" << parinteId << " nu este parinte.\n";
-                    continue;
-                }
-
-                // copilul doar il verificam ca exista si e copil
-                const Persoana* pCopil = gasestePersoanaConst(persoane, copilId);
-                if (!pCopil) {
-                    std::cout << "Nu exista persoana cu id=" << copilId << "\n";
-                    continue;
-                }
-
-                const auto* copil = dynamic_cast<const Copil*>(pCopil);
-                if (!copil) {
-                    std::cout << "Persoana cu id=" << copilId << " nu este copil.\n";
-                    continue;
-                }
-
-                parinte->adaugaCopil(copilId);
-                std::cout << "Asociere facuta: parinte " << parinte->nume()
-                          << " -> copil " << copil->nume() << "\n";
+                pParinte->adaugaCopil(idCopil);
+                std::cout << "Asociere realizata.\n";
             }
             else if (op == 7) {
-                if (persoane.empty()) {
-                    std::cout << "Nu exista persoane.\n";
-                    continue;
-                }
-
                 std::cout << "ID parinte: ";
-                int parinteId = citesteInt();
+                int idParinte = citesteInt();
 
-                const Persoana* pParinte = gasestePersoanaConst(persoane, parinteId);
-                if (!pParinte) {
-                    std::cout << "Nu exista persoana cu id=" << parinteId << "\n";
-                    continue;
-                }
-
-                const auto* parinte = dynamic_cast<const Parinte*>(pParinte);
+                const auto* parinte = dynamic_cast<const Parinte*>(
+                        gasestePersoanaConst(persoane, idParinte));
                 if (!parinte) {
-                    std::cout << "Persoana cu id=" << parinteId << " nu este parinte.\n";
+                    std::cout << "Nu este parinte.\n";
                     continue;
                 }
 
-                std::cout << "Parinte: " << parinte->nume()
-                          << " (telefon=" << parinte->telefon() << ")\n";
+                std::cout << *parinte << "\n";
+            }
+            else if (op == 8) {
+                administrareCopii.sorteazaDupa(
+                        [](const Copil& a, const Copil& b) {
+                            return a.varsta() < b.varsta();
+                        });
 
-                const auto& ids = parinte->copiiIds();
-                if (ids.empty()) {
-                    std::cout << "Nu are copii asociati.\n";
-                    continue;
-                }
-
-                std::cout << "Copii asociati:\n";
-                for (int idCopil : ids) {
-                    const Persoana* pCopil = gasestePersoanaConst(persoane, idCopil);
-                    if (!pCopil) {
-                        std::cout << " - copilId=" << idCopil << " (nu mai exista in lista)\n";
-                        continue;
-                    }
-
-                    const auto* copil = dynamic_cast<const Copil*>(pCopil);
-                    if (!copil) {
-                        std::cout << " - copilId=" << idCopil << " (nu este copil)\n";
-                        continue;
-                    }
-
-                    std::cout << " - " << copil->nume() << ", varsta=" << copil->varsta()
-                              << ", id=" << copil->id() << "\n";
-                }
+                std::cout << "Copii sortati dupa varsta:\n";
+                administrareCopii.afiseaza(std::cout);
             }
             else {
                 std::cout << "Optiune invalida.\n";
