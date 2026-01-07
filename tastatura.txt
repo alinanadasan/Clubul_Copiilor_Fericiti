@@ -1,13 +1,30 @@
-2
-1
-Ana ana@mail.com 10
-1
-Mihai mihai@mail.com 12
-2
 3
 1
-AnaNoua ana.noua@mail.com
+Alina alina@mail.com
+10
+1
+Mihai mihai@mail.com
+12
+2
+Ion ion@mail.com
+0712345678
+3
+6
+3
+1
+6
+3
+2
+7
+3
 4
 1
+AlinaNoua alina.noua@mail.com
+5
+3
+0700000000
+5
+2
+13
+3
 0
-

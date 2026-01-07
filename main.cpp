@@ -4,6 +4,7 @@
 #include <limits>
 
 #include "Copil.h"
+#include "Parinte.h"
 
 int citesteInt() {
     int x;
@@ -15,22 +16,16 @@ int citesteInt() {
     return x;
 }
 
-// Cauta persoana dupa id (varianta pentru citire: pointer const)
 const Persoana* gasestePersoanaConst(const std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
     for (const auto& p : persoane) {
-        if (p->id() == id) {
-            return p.get();
-        }
+        if (p->id() == id) return p.get();
     }
     return nullptr;
 }
 
-// Cauta persoana dupa id (varianta pentru modificare: pointer non-const)
 Persoana* gasestePersoanaMut(std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
     for (auto& p : persoane) {
-        if (p->id() == id) {
-            return p.get();
-        }
+        if (p->id() == id) return p.get();
     }
     return nullptr;
 }
@@ -38,9 +33,12 @@ Persoana* gasestePersoanaMut(std::vector<std::unique_ptr<Persoana>>& persoane, i
 void afiseazaMeniu() {
     std::cout << "\n===== MENIU =====\n";
     std::cout << "1) Adauga copil\n";
-    std::cout << "2) Afiseaza toate persoanele\n";
-    std::cout << "3) Modifica nume/email (dupa id)\n";
-    std::cout << "4) Afiseaza varsta copil (dupa id)\n";
+    std::cout << "2) Adauga parinte\n";
+    std::cout << "3) Afiseaza toate persoanele\n";
+    std::cout << "4) Modifica nume/email (dupa id)\n";
+    std::cout << "5) Modifica varsta copil / telefon parinte (dupa id)\n";
+    std::cout << "6) Asociaza copil la parinte (parinteId, copilId)\n";
+    std::cout << "7) Afiseaza copiii unui parinte (dupa id)\n";
     std::cout << "0) Iesire\n";
     std::cout << "Optiune: ";
 }
@@ -62,27 +60,38 @@ int main() {
                 std::string nume, email;
                 int varsta;
 
-                std::cout << "Nume (fara spatii): ";
+                std::cout << "Nume copil (fara spatii): ";
                 std::cin >> nume;
-
-                std::cout << "Email: ";
+                std::cout << "Email copil: ";
                 std::cin >> email;
-
-                std::cout << "Varsta: ";
+                std::cout << "Varsta copil: ";
                 varsta = citesteInt();
 
                 auto c = std::make_unique<Copil>(nume, email, varsta);
-
                 std::cout << "Adaugat copil cu id=" << c->id() << "\n";
 
                 persoane.push_back(std::move(c));
             }
             else if (op == 2) {
+                std::string nume, email, telefon;
+
+                std::cout << "Nume parinte (fara spatii): ";
+                std::cin >> nume;
+                std::cout << "Email parinte: ";
+                std::cin >> email;
+                std::cout << "Telefon parinte: ";
+                std::cin >> telefon;
+
+                auto p = std::make_unique<Parinte>(nume, email, telefon);
+                std::cout << "Adaugat parinte cu id=" << p->id() << "\n";
+
+                persoane.push_back(std::move(p));
+            }
+            else if (op == 3) {
                 if (persoane.empty()) {
                     std::cout << "Nu exista persoane.\n";
                 } else {
                     for (const auto& p : persoane) {
-                        // operator<< foloseste tip() si afiseaza()
                         std::cout << *p << "\n";
 
                         std::cout << "  (info) id=" << p->id()
@@ -91,7 +100,7 @@ int main() {
                     }
                 }
             }
-            else if (op == 3) {
+            else if (op == 4) {
                 if (persoane.empty()) {
                     std::cout << "Nu exista persoane.\n";
                     continue;
@@ -101,17 +110,14 @@ int main() {
                 int id = citesteInt();
 
                 Persoana* gasita = gasestePersoanaMut(persoane, id);
-
                 if (!gasita) {
                     std::cout << "Nu exista persoana cu id=" << id << "\n";
                     continue;
                 }
 
                 std::string numeNou, emailNou;
-
                 std::cout << "Nume nou (fara spatii): ";
                 std::cin >> numeNou;
-
                 std::cout << "Email nou: ";
                 std::cin >> emailNou;
 
@@ -120,32 +126,124 @@ int main() {
 
                 std::cout << "Actualizat: " << *gasita << "\n";
             }
-            else if (op == 4) {
+            else if (op == 5) {
                 if (persoane.empty()) {
                     std::cout << "Nu exista persoane.\n";
                     continue;
                 }
 
-                std::cout << "ID copil: ";
+                std::cout << "ID persoana: ";
                 int id = citesteInt();
 
-                const Persoana* gasita = gasestePersoanaConst(persoane, id);
-
+                Persoana* gasita = gasestePersoanaMut(persoane, id);
                 if (!gasita) {
                     std::cout << "Nu exista persoana cu id=" << id << "\n";
                     continue;
                 }
 
-                // downcast
-                const Copil* copil = dynamic_cast<const Copil*>(gasita);
-
-                if (!copil) {
-                    std::cout << "Persoana cu id=" << id << " nu este copil.\n";
+                if (auto* copil = dynamic_cast<Copil*>(gasita)) {
+                    std::cout << "Varsta noua pentru copil: ";
+                    int v = citesteInt();
+                    copil->setVarsta(v);
+                    std::cout << "Actualizat: " << *copil << "\n";
+                } else if (auto* parinte = dynamic_cast<Parinte*>(gasita)) {
+                    std::string tel;
+                    std::cout << "Telefon nou pentru parinte: ";
+                    std::cin >> tel;
+                    parinte->setTelefon(tel);
+                    std::cout << "Actualizat: " << *parinte << "\n";
+                } else {
+                    std::cout << "Tip de persoana necunoscut (nu ar trebui sa se intample).\n";
+                }
+            }
+            else if (op == 6) {
+                if (persoane.empty()) {
+                    std::cout << "Nu exista persoane.\n";
                     continue;
                 }
 
-                std::cout << "Varsta copilului " << copil->nume()
-                          << " este " << copil->varsta() << "\n";
+                std::cout << "ID parinte: ";
+                int parinteId = citesteInt();
+                std::cout << "ID copil: ";
+                int copilId = citesteInt();
+
+                // parinte mutabil (il modificam: adaugam copilId)
+                Persoana* pParinte = gasestePersoanaMut(persoane, parinteId);
+                if (!pParinte) {
+                    std::cout << "Nu exista persoana cu id=" << parinteId << "\n";
+                    continue;
+                }
+
+                auto* parinte = dynamic_cast<Parinte*>(pParinte);
+                if (!parinte) {
+                    std::cout << "Persoana cu id=" << parinteId << " nu este parinte.\n";
+                    continue;
+                }
+
+                // copilul doar il verificam ca exista si e copil
+                const Persoana* pCopil = gasestePersoanaConst(persoane, copilId);
+                if (!pCopil) {
+                    std::cout << "Nu exista persoana cu id=" << copilId << "\n";
+                    continue;
+                }
+
+                const auto* copil = dynamic_cast<const Copil*>(pCopil);
+                if (!copil) {
+                    std::cout << "Persoana cu id=" << copilId << " nu este copil.\n";
+                    continue;
+                }
+
+                parinte->adaugaCopil(copilId);
+                std::cout << "Asociere facuta: parinte " << parinte->nume()
+                          << " -> copil " << copil->nume() << "\n";
+            }
+            else if (op == 7) {
+                if (persoane.empty()) {
+                    std::cout << "Nu exista persoane.\n";
+                    continue;
+                }
+
+                std::cout << "ID parinte: ";
+                int parinteId = citesteInt();
+
+                const Persoana* pParinte = gasestePersoanaConst(persoane, parinteId);
+                if (!pParinte) {
+                    std::cout << "Nu exista persoana cu id=" << parinteId << "\n";
+                    continue;
+                }
+
+                const auto* parinte = dynamic_cast<const Parinte*>(pParinte);
+                if (!parinte) {
+                    std::cout << "Persoana cu id=" << parinteId << " nu este parinte.\n";
+                    continue;
+                }
+
+                std::cout << "Parinte: " << parinte->nume()
+                          << " (telefon=" << parinte->telefon() << ")\n";
+
+                const auto& ids = parinte->copiiIds();
+                if (ids.empty()) {
+                    std::cout << "Nu are copii asociati.\n";
+                    continue;
+                }
+
+                std::cout << "Copii asociati:\n";
+                for (int idCopil : ids) {
+                    const Persoana* pCopil = gasestePersoanaConst(persoane, idCopil);
+                    if (!pCopil) {
+                        std::cout << " - copilId=" << idCopil << " (nu mai exista in lista)\n";
+                        continue;
+                    }
+
+                    const auto* copil = dynamic_cast<const Copil*>(pCopil);
+                    if (!copil) {
+                        std::cout << " - copilId=" << idCopil << " (nu este copil)\n";
+                        continue;
+                    }
+
+                    std::cout << " - " << copil->nume() << ", varsta=" << copil->varsta()
+                              << ", id=" << copil->id() << "\n";
+                }
             }
             else {
                 std::cout << "Optiune invalida.\n";
@@ -158,33 +256,3 @@ int main() {
 
     return 0;
 }
-
-/////////////////////////////////////////////////////////////////////////
-/// Observație: dacă aveți nevoie să citiți date de intrare de la tastatură,
-/// dați exemple de date de intrare folosind fișierul tastatura.txt
-/// Trebuie să aveți în fișierul tastatura.txt suficiente date de intrare
-/// (în formatul impus de voi) astfel încât execuția programului să se încheie.
-/// De asemenea, trebuie să adăugați în acest fișier date de intrare
-/// pentru cât mai multe ramuri de execuție.
-/// Dorim să facem acest lucru pentru a automatiza testarea codului, fără să
-/// mai pierdem timp de fiecare dată să introducem de la zero aceleași date de intrare.
-///
-/// Pe GitHub Actions (bife), fișierul tastatura.txt este folosit
-/// pentru a simula date introduse de la tastatură.
-/// Bifele verifică dacă programul are erori de compilare, erori de memorie și memory leaks.
-///
-/// Dacă nu puneți în tastatura.txt suficiente date de intrare, îmi rezerv dreptul să vă
-/// testez codul cu ce date de intrare am chef și să nu pun notă dacă găsesc vreun bug.
-/// Impun această cerință ca să învățați să faceți un demo și să arătați părțile din
-/// program care merg (și să le evitați pe cele care nu merg).
-///
-/////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-    /// Pentru date citite din fișier, NU folosiți tastatura.txt. Creați-vă voi
-    /// alt fișier propriu cu ce alt nume doriți.
-    /// Exemplu:
-    /// std::ifstream fis("date.txt");
-    /// for(int i = 0; i < nr2; ++i)
-    ///     fis >> v2[i];
-    ///
-    ///////////////////////////////////////////////////////////////////////////

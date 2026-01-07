@@ -21,7 +21,7 @@ protected:
     // Constructor apelat doar din clasele derivate
     Persoana(std::string nume, std::string email);
 
-    // Constructor cu id explicit (pentru citire din fisier)
+    // Constructor cu id explicit
     Persoana(int id, std::string nume, std::string email);
 
 public:
