@@ -15,18 +15,41 @@ int citesteInt() {
     return x;
 }
 
+// Cauta persoana dupa id (varianta pentru citire: pointer const)
+const Persoana* gasestePersoanaConst(const std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
+    for (const auto& p : persoane) {
+        if (p->id() == id) {
+            return p.get();
+        }
+    }
+    return nullptr;
+}
+
+// Cauta persoana dupa id (varianta pentru modificare: pointer non-const)
+Persoana* gasestePersoanaMut(std::vector<std::unique_ptr<Persoana>>& persoane, int id) {
+    for (auto& p : persoane) {
+        if (p->id() == id) {
+            return p.get();
+        }
+    }
+    return nullptr;
+}
+
+void afiseazaMeniu() {
+    std::cout << "\n===== MENIU =====\n";
+    std::cout << "1) Adauga copil\n";
+    std::cout << "2) Afiseaza toate persoanele\n";
+    std::cout << "3) Modifica nume/email (dupa id)\n";
+    std::cout << "4) Afiseaza varsta copil (dupa id)\n";
+    std::cout << "0) Iesire\n";
+    std::cout << "Optiune: ";
+}
+
 int main() {
     std::vector<std::unique_ptr<Persoana>> persoane;
 
     while (true) {
-        std::cout << "\n===== MENIU =====\n";
-        std::cout << "1) Adauga copil\n";
-        std::cout << "2) Afiseaza toate persoanele\n";
-        std::cout << "3) Modifica nume/email (dupa id)\n";
-        std::cout << "4) Afiseaza varsta copil (dupa id)\n";
-        std::cout << "0) Iesire\n";
-        std::cout << "Optiune: ";
-
+        afiseazaMeniu();
         int op = citesteInt();
 
         try {
@@ -41,8 +64,10 @@ int main() {
 
                 std::cout << "Nume (fara spatii): ";
                 std::cin >> nume;
+
                 std::cout << "Email: ";
                 std::cin >> email;
+
                 std::cout << "Varsta: ";
                 varsta = citesteInt();
 
@@ -57,10 +82,11 @@ int main() {
                     std::cout << "Nu exista persoane.\n";
                 } else {
                     for (const auto& p : persoane) {
-                        // foloseste tip(), afiseaza(), operator<<
+                        // operator<< foloseste tip() si afiseaza()
                         std::cout << *p << "\n";
 
-                        std::cout << "  (debug) nume=" << p->nume()
+                        std::cout << "  (info) id=" << p->id()
+                                  << ", nume=" << p->nume()
                                   << ", email=" << p->email() << "\n";
                     }
                 }
@@ -74,13 +100,7 @@ int main() {
                 std::cout << "ID persoana: ";
                 int id = citesteInt();
 
-                Persoana* gasita = nullptr;
-                for (auto& p : persoane) {
-                    if (p->id() == id) {
-                        gasita = p.get();
-                        break;
-                    }
-                }
+                Persoana* gasita = gasestePersoanaMut(persoane, id);
 
                 if (!gasita) {
                     std::cout << "Nu exista persoana cu id=" << id << "\n";
@@ -88,8 +108,10 @@ int main() {
                 }
 
                 std::string numeNou, emailNou;
+
                 std::cout << "Nume nou (fara spatii): ";
                 std::cin >> numeNou;
+
                 std::cout << "Email nou: ";
                 std::cin >> emailNou;
 
@@ -107,13 +129,7 @@ int main() {
                 std::cout << "ID copil: ";
                 int id = citesteInt();
 
-                Persoana* gasita = nullptr;
-                for (auto& p : persoane) {
-                    if (p->id() == id) {
-                        gasita = p.get();
-                        break;
-                    }
-                }
+                const Persoana* gasita = gasestePersoanaConst(persoane, id);
 
                 if (!gasita) {
                     std::cout << "Nu exista persoana cu id=" << id << "\n";
@@ -122,6 +138,7 @@ int main() {
 
                 // downcast
                 const Copil* copil = dynamic_cast<const Copil*>(gasita);
+
                 if (!copil) {
                     std::cout << "Persoana cu id=" << id << " nu este copil.\n";
                     continue;
