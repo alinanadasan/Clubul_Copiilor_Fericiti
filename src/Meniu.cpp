@@ -26,20 +26,35 @@ std::string toLower(std::string s) {
 int Meniu::citesteInt(const std::string& mesaj) {
     while (true) {
         std::cout << mesaj;
+
         int x{};
-        if (std::cin >> x) return x;
+        if (std::cin >> x) {
+            return x;
+        }
+
+        if (std::cin.eof()) {
+            throw std::runtime_error("EOF la citire (nu exista input).");
+        }
 
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::cout << "Valoare invalida. Incercati din nou.\n";
     }
 }
+
 
 double Meniu::citesteDouble(const std::string& mesaj) {
     while (true) {
         std::cout << mesaj;
+
         double x{};
-        if (std::cin >> x) return x;
+        if (std::cin >> x) {
+            return x;
+        }
+
+        if (std::cin.eof()) {
+            throw std::runtime_error("EOF la citire (nu exista input).");
+        }
 
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -47,12 +62,17 @@ double Meniu::citesteDouble(const std::string& mesaj) {
     }
 }
 
+
 std::string Meniu::citesteString(const std::string& mesaj) {
     std::cout << mesaj;
+
     std::string s;
-    std::cin >> s; // simplu: fara spatii
+    if (!(std::cin >> s)) {
+        throw std::runtime_error("EOF la citire (nu exista input).");
+    }
     return s;
 }
+
 
 void Meniu::ruleaza() {
     while (true) {
@@ -61,7 +81,14 @@ void Meniu::ruleaza() {
                   << "2) Testare manuala\n"
                   << "3) Iesire\n";
 
-        const int opt = citesteInt("Alege: ");
+        int opt = 0;
+        try {
+            opt = citesteInt("Alege: ");
+        } catch (const std::exception& e) {
+            std::cout << "Iesire: " << e.what() << "\n";
+            return;
+        }
+
         if (opt == 1) {
             std::cout << "[TEST AUTOMAT] Se citesc date din fisierul tastatura.txt\n";
             try {
